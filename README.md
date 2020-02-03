@@ -1,5 +1,3 @@
-# esnet-collector
-
 ESNET Collector
 ============
 
