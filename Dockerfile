@@ -8,7 +8,7 @@ ADD . /esnet_collector
 WORKDIR /esnet_collector
 RUN pip install dot-env
 
-RUN python rmqInterfaceUploder.py
+RUN python rmqInterfaceUploader.py
 
 EXPOSE 8000
 
