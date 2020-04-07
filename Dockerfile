@@ -1,12 +1,14 @@
-FROM python:2-alpine3.7
+FROM python:3-alpine3.7
+
+LABEL maintainer Soundar Rajendran <rajends@umich.edu>
 
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
-ADD . /ps_collector
-WORKDIR /ps_collector
-RUN pip install -r requirements.txt
+ADD . /esnet_collector
+WORKDIR /esnet_collector
+RUN pip install dot-env
 
-RUN python setup.py install
+RUN python rmqInterfaceUploder.py
 
 EXPOSE 8000
 
