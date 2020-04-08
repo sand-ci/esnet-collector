@@ -15,7 +15,7 @@ exchange = os.getenv('rmq-exchange')
 key = os.getenv('rmq-traffic-key')
 vhost = os.getenv('rmq-vhost')
 
-with open("interface1.csv", "r") as csv_file:
+with open("interface.csv", "r") as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     for lines in csv_reader:
       url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
