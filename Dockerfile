@@ -10,4 +10,7 @@ RUN pip install dot-env
 
 EXPOSE 8000
 
-CMD python rmqInterfaceUploader.py
+CMD python rabbitmqInterfaceUploader.py
+CMD python rabbitmqTrafficUploader.py
+CMD python rabbitmqErrorsUploader.py
+CMD python rabbitmqDiscardsUploader.py
