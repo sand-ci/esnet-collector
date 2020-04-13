@@ -42,9 +42,7 @@ with open("interface.csv", "r") as csv_file:
                   channel.confirm_delivery()
                   
                   print("[x] Traffic data from begin date", date1 ,"to end date", date2 , "sent to RabbitMQ bus at exchange osg.esdata.raw") 
-                  print ("Traffic messages published for device :", count)
-                   
-                  print(interfaceData, file=f)     
+                  print ("Traffic messages published for device :", count)    
 
       except (HTTPError):
           print('No Record found')
