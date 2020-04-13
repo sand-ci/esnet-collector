@@ -23,7 +23,7 @@ with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet
     data = json.load(url)
 
     for datum in data:
-    	seconds = datetime.datetime.utcnow().timestamp()
+        seconds = datetime.datetime.utcnow().timestamp()
         timestamp_in_millis = round(seconds * 1000)
         datum['timestamp'] = timestamp_in_millis
         interfaceData = json.dumps(datum)
