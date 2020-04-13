@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import urllib.request
 import json
 import pika, os
+import datetime
 
 load_dotenv()
 username = os.getenv('rmq-user')
@@ -22,6 +23,9 @@ with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet
     data = json.load(url)
 
     for datum in data:
+    	seconds = datetime.datetime.utcnow().timestamp()
+        timestamp_in_millis = round(seconds * 1000)
+        datum['timestamp'] = timestamp_in_millis
         interfaceData = json.dumps(datum)
         channel.basic_publish(exchange=exchange, routing_key=key, body=interfaceData, properties=pika.BasicProperties(content_type='text/plain',
                                                           delivery_mode=1))
