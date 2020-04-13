@@ -19,14 +19,14 @@ connection = pika.BlockingConnection(params) # Connect to CloudAMQP
 channel = connection.channel() # start a channel
 
 with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
-    data = json.loads(url.read().decode())
+    data = json.load(url)
 
-interfaceData = json.dumps(data)
-
-channel.basic_publish(exchange=exchange, routing_key=key, body=interfaceData, properties=pika.BasicProperties(content_type='text/plain',
+    for datum in data:
+        interfaceData = json.dumps(datum)
+        channel.basic_publish(exchange=exchange, routing_key=key, body=interfaceData, properties=pika.BasicProperties(content_type='text/plain',
                                                           delivery_mode=1))
-
-channel.confirm_delivery()
+        channel.confirm_delivery()
         
-print("[x] Interface Data sent to OSG RabbitMQ bus")
+        print("[x] Interface data sent to OSG RabbitMQ bus")
+
 connection.close()
