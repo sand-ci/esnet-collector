@@ -19,13 +19,10 @@ connection = pika.BlockingConnection(params) # Connect to CloudAMQP
 channel = connection.channel() # start a channel
         
 def callback(ch, method, properties, body):
-    print(" [x] Received %r" % body)
-    #time.sleep(body.count(b'.'))
-    print(" [x] Done")
+    data = json.loads(body)
+    print(" [x] Message Received")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 channel.basic_consume(queue=exchange, on_message_callback=callback)
 
-data = channel.start_consuming()
-
-print(" All Done ")
+channel.start_consuming()
