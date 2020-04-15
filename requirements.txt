@@ -1,5 +1,2 @@
 pika
-dot-env
-urllib
-json
-os
+python-dotenv
