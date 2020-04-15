@@ -1,0 +1,5 @@
+pika
+dot-env
+urllib
+json
+os

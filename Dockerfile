@@ -6,7 +6,7 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
 ADD . /esnet_collector
 WORKDIR /esnet_collector
-RUN pip install dot-env
+RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
