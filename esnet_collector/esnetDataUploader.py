@@ -3,7 +3,6 @@ from datetime import date, datetime, timedelta
 from urllib.error import HTTPError 
 import urllib.request
 import urllib.parse
-import datetime
 import time
 import json
 import csv
