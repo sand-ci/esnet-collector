@@ -1,7 +1,6 @@
-from esnet_collector.rabbitmqconnect import RabbitMQConnect
+from rabbitmqconnect import RabbitMQConnect, get_rabbitmq_connection
 from datetime import date, datetime, timedelta
 from urllib.error import HTTPError 
-import esnet_collector
 import urllib.request
 import urllib.parse
 import datetime
@@ -15,10 +14,10 @@ class EsnetDataUploader():
 
     def __init__(self):       
         
-        self.channel = esnet_collector.get_rabbitmq_connection().createChannel()
-        self.exchange = esnet_collector.get_rabbitmq_connection().exchange
-        self.key1 = esnet_collector.get_rabbitmq_connection().key1
-        self.key2 = esnet_collector.get_rabbitmq_connection().key2
+        self.channel = get_rabbitmq_connection().createChannel()
+        self.exchange = get_rabbitmq_connection().exchange
+        self.key1 = get_rabbitmq_connection().key1
+        self.key2 = get_rabbitmq_connection().key2
 
     def SendInterfacetoRMQ(self):
         

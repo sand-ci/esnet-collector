@@ -2,6 +2,16 @@ from dotenv import load_dotenv
 import pika
 import os
 
+# Shared RabbitMQ
+rabbitmq_connect = None
+
+def get_rabbitmq_connection():
+    global rabbitmq_connect
+    if rabbitmq_connect == None:
+        rabbitmq_connect = RabbitMQConnect()
+    return rabbitmq_connect
+
+
 class RabbitMQConnect:
     def __init__(self):
         #Load the environment file
