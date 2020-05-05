@@ -29,7 +29,6 @@ class EsnetDataUploader():
                 datum['timestamp'] = timestamp_in_millis
                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key1, body=json.dumps(datum), properties=pika.BasicProperties(content_type='text/plain',
                                                           delivery_mode=1))
-                self.channel.confirm_delivery()
                 print("[x] Interface data sent to OSG RabbitMQ bus")  
 
 
@@ -59,7 +58,6 @@ class EsnetDataUploader():
                         for point in points:
                             self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name" : device, "recordType" : recordType, 
                               "timestamp" : point[0] , "in" : point[1] , "out" : point[2]}), properties=pika.BasicProperties(content_type='text/plain', delivery_mode=1))
-                            self.channel.confirm_delivery()
                    
                 except (HTTPError):
                     print('No Record found')
