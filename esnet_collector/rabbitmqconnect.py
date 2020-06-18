@@ -16,13 +16,13 @@ class RabbitMQConnect:
     def __init__(self):
         #Load the environment file
         load_dotenv()
-        self.username = os.getenv('rmq-user')
-        self.passwd = os.getenv('rmq-pass')
-        self.rabbithost = os.getenv('rmq-host')
-        self.exchange = os.getenv('rmq-exchange')
-        self.key1 = os.getenv('rmq-interface-key')
-        self.key2 = os.getenv('rmq-traffic-key')
-        self.vhost = os.getenv('rmq-vhost')
+        self.username = os.getenv('RMQ_USER')
+        self.passwd = os.getenv('RMQ_PASS')
+        self.rabbithost = os.getenv('RMQ_HOST')
+        self.exchange = os.getenv('RMQ_EXCHANGE')
+        self.key1 = os.getenv('RMQ_INTERFACE_KEY')
+        self.key2 = os.getenv('RMQ_TRAFFICE_KEY')
+        self.vhost = os.getenv('RMQ_VHOST')
         self.createConnection()
 
     def createConnection(self):
