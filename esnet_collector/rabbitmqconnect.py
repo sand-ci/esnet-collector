@@ -21,7 +21,7 @@ class RabbitMQConnect:
         self.rabbithost = os.getenv('RMQ_HOST')
         self.exchange = os.getenv('RMQ_EXCHANGE')
         self.key1 = os.getenv('RMQ_INTERFACE_KEY')
-        self.key2 = os.getenv('RMQ_TRAFFICE_KEY')
+        self.key2 = os.getenv('RMQ_TRAFFIC_KEY')
         self.vhost = os.getenv('RMQ_VHOST')
         self.createConnection()
 
