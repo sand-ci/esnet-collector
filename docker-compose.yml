@@ -1,0 +1,16 @@
+version: '2'
+services:
+    esnet_collector:
+        #image: sandci/esnet-collector:latest
+        build: .
+        environment:
+            # These can also be specified in a .env 
+            # file in the same directory
+            - RMQ_USER=esnet-data
+            - RMQ_PASS=<password>
+            - RMQ_HOST=${AMQP_HOST}
+            - RMQ_VHOST=${AMQP_VHOST}
+            - RMQ_EXCHANGE=osg.esdata.raw
+            - RMQ_INTERFACE_KEY=esnet_interfaces
+            - RMQ_TRAFFIC_KEY=esnet_traffic
+        mem_limit: 2g
