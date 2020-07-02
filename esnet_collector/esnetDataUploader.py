@@ -164,7 +164,7 @@ class EsnetDataUploader():
         else:
             print("Start time not less than end time... exiting loop") 
 
-    def RunInParallel(self)
+    def RunInParallel(self):
         stats = EsnetDataUploader()
         statType = ['errors', 'discards', 'traffic']
         for i in statType:
