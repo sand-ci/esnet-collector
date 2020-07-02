@@ -171,7 +171,8 @@ class EsnetDataUploader():
         statType = ['errors', 'discards', 'traffic']
         for i in statType:
             p = Process(target=stats.SendStatsToRMQ, args=[i])
-            p.start()                  
+            p.start()
+            p.join()                  
 
 stats = EsnetDataUploader()
 stats.SendInterfacetoRMQ()
