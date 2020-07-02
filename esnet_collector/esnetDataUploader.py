@@ -155,6 +155,8 @@ class EsnetDataUploader():
                         print('No Record found')
                     except json.decoder.JSONDecodeError:               
                         print('No Record found')
+                    except IndexError:
+                        print('No Record found')
                     except Exception as e:
                         print("Restarting pika connection,, exception was %s, " % (repr(e)))
                         self.channel = get_rabbitmq_connection().createChannel()    
