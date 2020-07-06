@@ -135,7 +135,7 @@ class EsnetDataUploader():
                     finalUrl = url1+device+'/'+recordType+'?{}'
                     print(finalUrl)
 
-                    params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': self.checkpoint.endTime})
+                    params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': tmp_endTime})
                     try:
                         with urllib.request.urlopen(finalUrl.format(params)) as url:
                             data = json.load(url)
@@ -178,4 +178,4 @@ stats = EsnetDataUploader()
 stats.SendInterfacetoRMQ()
 stats.RunInParallel()
 
-#get_rabbitmq_connection().closeConnection()  
+get_rabbitmq_connection().closeConnection()  
