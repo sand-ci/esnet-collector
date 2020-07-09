@@ -18,7 +18,7 @@ class EsnetDataUploader():
 
     checkpoint = os.path.join(os.getcwd(), "checktime")      
 
-    def __init__(self, sleep=5, low_water=30000, high_water=50000):       
+    def __init__(self, sleep=10, low_water=30000, high_water=50000):       
         
         self.url = get_rabbitmq_connection().rabbithost
         self.exchange = get_rabbitmq_connection().exchange
@@ -86,12 +86,12 @@ class EsnetDataUploader():
          # We're above the HWM. Stop sending for an additional 2x sleep and then check again
          while msg_count > self.high_water:
              print("Message count of {} is above high-water mark of {}. Waiting to recheck.".format(msg_count, self.high_water))
-             self.connection.sleep(2*self.sleep)
+             self.connection.sleep(self.sleep)
              msg_count = self.getMsgInQueue()
 
-             if msg_count < self.low_water:
-                 print("Message count of {} is below low-water mark of {}. Continuing.".format(msg_count, self.low_water))
-                 return
+         if msg_count < self.low_water:
+             print("Message count of {} is below low-water mark of {}. Continuing.".format(msg_count, self.low_water))
+             return
     
     def SendInterfacetoRMQ(self):
         
