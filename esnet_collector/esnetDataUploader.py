@@ -113,51 +113,44 @@ class EsnetDataUploader():
     def SendStatsToRMQ(self, stats):
         
         f = open('timeCollector.txt', 'a')
-        while (int(self.checkpoint.startTime) < int(self.checkpoint.endTime)):
-            tmp_endTime = int(self.checkpoint.startTime) + 4*3600*1000
-            print(self.checkpoint.startTime, tmp_endTime, self.checkpoint.endTime, file=f)
             
-            with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
-                data = json.load(url)
-                counter = 0
+        with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
+            data = json.load(url)
+            counter = 0
 
-                for datum in data:
-                    url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
-                    device = datum['resource']
-                    recordType = stats
-                    finalUrl = url1+device+'/'+recordType+'?{}'
-                    print(finalUrl)
+            for datum in data:
+                url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
+                device = datum['resource']
+                recordType = stats
+                finalUrl = url1+device+'/'+recordType+'?{}'
+                print(finalUrl)
 
-                    params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': tmp_endTime})
-                    try:
-                        with urllib.request.urlopen(finalUrl.format(params)) as url:
-                            data = json.load(url)
-                            points = data['points']
+                params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': tmp_endTime})
+                try:
+                    with urllib.request.urlopen(finalUrl.format(params)) as url:
+                    data = json.load(url)
+                    points = data['points']
               
-                            for point in points:
-                                self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name" : device, "recordType" : recordType, 
+                        for point in points:
+                            self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name" : device, "recordType" : recordType, 
                               "timestamp" : point[0] , "in" : point[1] , "out" : point[2]}), properties=pika.BasicProperties(content_type='text/plain', delivery_mode=1))
                             
-                                counter += 1
-                                print(counter)
+                            counter += 1
+                            print(counter)
 
-                                if (counter % self.batch_size) == 0:
-                                    self.batchSleep()
+                            if (counter % self.batch_size) == 0:
+                                self.batchSleep()
 
-                    except (HTTPError):
-                        print('No Record found')
-                    except json.decoder.JSONDecodeError:               
-                        print('No Record found')
-                    except IndexError:
-                        print('No Record found')
-                    except Exception as e:
-                        print("Restarting pika connection,, exception was %s, " % (repr(e)))
-                        self.channel = get_rabbitmq_connection().createChannel()    
+                except (HTTPError):
+                    print('No Record found')
+                except json.decoder.JSONDecodeError:               
+                    print('No Record found')
+                except IndexError:
+                    print('No Record found')
+                except Exception as e:
+                    print("Restarting pika connection,, exception was %s, " % (repr(e)))
+                    self.channel = get_rabbitmq_connection().createChannel()    
 
-            self.checkpoint.startTime = tmp_endTime
-
-        else:
-            print("Start time not less than end time... exiting loop") 
 
     def RunInParallel(self):
         stats = EsnetDataUploader()
