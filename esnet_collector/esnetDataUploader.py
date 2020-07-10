@@ -115,8 +115,8 @@ class EsnetDataUploader():
         f = open('timeCollector.txt', 'a')
             
         with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
-        data = json.load(url)
-        counter = 0
+            data = json.load(url)
+            counter = 0
 
             for datum in data:
                 url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
@@ -128,8 +128,8 @@ class EsnetDataUploader():
                 params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': self.checkpoint.endTime})
                 try:
                     with urllib.request.urlopen(finalUrl.format(params)) as url:
-                    data = json.load(url)
-                    points = data['points']
+                        data = json.load(url)
+                        points = data['points']
               
                         for point in points:
                             self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name" : device, "recordType" : recordType, 
