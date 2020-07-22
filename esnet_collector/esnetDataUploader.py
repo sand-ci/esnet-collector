@@ -114,8 +114,8 @@ class EsnetDataUploader():
         
         f = open('timeCollector.txt', 'a')
         while(int(self.checkpoint.startTime) < int(self.checkpoint.endTime)):
-	    tmp_endTime = int(self.checkpoint.startTime) + 48*3600*1000 
-	    print(self.checkpoint.startTime, tmp_endTime, self.checkpoint.endTime, file=f)
+	    tmp_endTime = int(self.checkpoint.startTime) + 48*3600*1000
+            print(self.checkpoint.startTime, tmp_endTime, self.checkpoint.endTime, file=f)
    
             with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
                 data = json.load(url)
