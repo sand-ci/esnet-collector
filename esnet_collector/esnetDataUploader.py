@@ -19,7 +19,7 @@ class EsnetDataUploader():
 
     checkpoint = os.path.join(os.getcwd(), "checktime")
 
-    def __init__(self, sleep=10, low_water=30000, high_water=50000):
+    def __init__(self, sleep=30, low_water=30000, high_water=50000):
 
         self.url = get_rabbitmq_connection().rabbithost
         self.exchange = get_rabbitmq_connection().exchange
