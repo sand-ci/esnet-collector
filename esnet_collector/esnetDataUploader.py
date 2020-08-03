@@ -115,7 +115,6 @@ class EsnetDataUploader():
                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key1, body=json.dumps(datum), properties=pika.BasicProperties(content_type='text/plain',
                                                                                                                                                   delivery_mode=1))
                 counter += 1
-                print(counter)
                 print("[x] Interface data sent to OSG RabbitMQ bus")
 
     def SendStatsToRMQ(self, stats):
@@ -149,7 +148,6 @@ class EsnetDataUploader():
                                                                                                                            "timestamp": point[0], "in": point[1], "out": point[2]}), properties=pika.BasicProperties(content_type='text/plain', delivery_mode=1))
 
                                 counter += 1
-                                print(counter)
 
                                 if (counter % self.batch_size) == 0:
                                     self.batchSleep()
