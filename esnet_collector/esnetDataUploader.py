@@ -89,17 +89,18 @@ class EsnetDataUploader():
         '''Sleep between message batches'''
         # Get the number of messages
         msg_count = self.getMsgInQueue()
+        timestamp = datetime.utcnow()
 
         # We're above the HWM. Stop sending for an additional 2x sleep and then check again
         while msg_count > self.high_water:
-            print("Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
-                msg_count, self.high_water))
+            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
+                timestamp, msg_count, self.high_water))
             self.connection.sleep(self.sleep)
             msg_count = self.getMsgInQueue()
 
         if msg_count < self.low_water:
-            print("Message count of {} is below low-water mark of {}. Continuing.".format(
-                msg_count, self.low_water))
+            print("Time : {} , Message count of {} is below low-water mark of {}. Continuing.".format(
+                timestamp, msg_count, self.low_water))
             return
 
     def SendInterfacetoRMQ(self):
