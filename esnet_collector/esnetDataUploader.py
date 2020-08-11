@@ -135,7 +135,7 @@ class EsnetDataUploader():
                     device = datum['resource']
                     recordType = stats
                     finalUrl = url1+device+'/'+recordType+'?{}'
-                    print(finalUrl)
+                    #print(finalUrl)
 
                     params = urllib.parse.urlencode(
                         {'begin': self.checkpoint.startTime, 'end': tmp_endTime})
