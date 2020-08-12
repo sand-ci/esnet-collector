@@ -162,6 +162,7 @@ class EsnetDataUploader():
                     except Exception as e:
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
+                        self.channel = get_rabbitmq_connection().createChannel()
                         self.batchSleep()
                         self.channel = get_rabbitmq_connection().createChannel()
  
