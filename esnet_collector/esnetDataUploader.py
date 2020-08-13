@@ -19,7 +19,7 @@ class EsnetDataUploader():
 
     checkpoint = os.path.join(os.getcwd(), "checktime")
 
-    def __init__(self, sleep=30, low_water=30000, high_water=50000):
+    def __init__(self, sleep=15, low_water=30000, high_water=50000):
 
         self.url = get_rabbitmq_connection().rabbithost
         self.exchange = get_rabbitmq_connection().exchange
@@ -31,7 +31,7 @@ class EsnetDataUploader():
         self.sleep = sleep
         self.low_water = low_water
         self.high_water = high_water
-        self.batch_size = 50000
+        self.batch_size = 25000
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
@@ -162,8 +162,6 @@ class EsnetDataUploader():
                     except Exception as e:
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
-                        self.channel = get_rabbitmq_connection().createChannel()
-                        self.batchSleep()
                         self.channel = get_rabbitmq_connection().createChannel()
  
             self.checkpoint.startTime = tmp_endTime
