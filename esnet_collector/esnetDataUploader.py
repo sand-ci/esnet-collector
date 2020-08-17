@@ -170,9 +170,9 @@ class EsnetDataUploader():
                                 timestamp, msg_count, self.high_water))
                             self.connection.sleep(self.sleep)
                             msg_count = self.getMsgInQueue()
-                        else
-                        print("Time : {} , Message count of {} is below high-water mark of {}. Continuing".format(
-                            timestamp, msg_count, self.high_water))
+                        else:
+                            print("Time : {} , Message count of {} is below high-water mark of {}. Continuing".format(
+                                timestamp, msg_count, self.high_water))
 
             self.checkpoint.startTime = tmp_endTime
 
