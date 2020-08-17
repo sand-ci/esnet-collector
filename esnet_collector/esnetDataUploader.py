@@ -159,13 +159,15 @@ class EsnetDataUploader():
                         print('No Record found')
                     except IndexError:
                         print('No Record found')
+                    except TypeError:
+		        print ('Type Error')
                     except Exception as e:
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
                         self.channel = get_rabbitmq_connection().createChannel()
                         msg_count = self.getMsgInQueue()
                         timestamp = datetime.utcnow()
-                        if msg_count >= self.high_water:
+                        while msg_count >= self.high_water:
                             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
                                 timestamp, msg_count, self.high_water))
                             self.connection.sleep(self.sleep)
