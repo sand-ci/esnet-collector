@@ -31,11 +31,11 @@ class EsnetDataUploader():
         self.sleep = sleep
         self.low_water = low_water
         self.high_water = high_water
-        self.batch_size = 25000
+        self.batch_size = 30000
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
-            host=self.url, virtual_host=self.vhost, credentials=credentials)
+            host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat=600, blocked_connection_timeout=300)
         self.connection = pika.BlockingConnection(
             self.params)  # Connect to CloudAMQP
         self.channel = get_rabbitmq_connection().createChannel()
