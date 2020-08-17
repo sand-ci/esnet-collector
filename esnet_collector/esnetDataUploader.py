@@ -35,7 +35,7 @@ class EsnetDataUploader():
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
-            host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat=600, blocked_connection_timeout=300)
+            host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat=10)
         self.connection = pika.BlockingConnection(
             self.params)  # Connect to CloudAMQP
         self.channel = get_rabbitmq_connection().createChannel()
@@ -143,6 +143,7 @@ class EsnetDataUploader():
                         with urllib.request.urlopen(finalUrl.format(params)) as url:
                             data = json.load(url)
                             points = data['points']
+                            self.batchSleep()
 
                             for point in points:
                                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name": device, "recordType": recordType,
@@ -150,31 +151,16 @@ class EsnetDataUploader():
 
                                 counter += 1
 
-                                if (counter % self.batch_size) == 0:
-                                    self.batchSleep()
-
                     except (HTTPError):
                         print('No Record found')
                     except json.decoder.JSONDecodeError:
                         print('No Record found')
                     except IndexError:
                         print('No Record found')
-                    except TypeError:
-                        print('Type Error')
                     except Exception as e:
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
                         self.channel = get_rabbitmq_connection().createChannel()
-                        msg_count = self.getMsgInQueue()
-                        timestamp = datetime.utcnow()
-                        while msg_count >= self.high_water:
-                            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
-                                timestamp, msg_count, self.high_water))
-                            self.connection.sleep(self.sleep)
-                            msg_count = self.getMsgInQueue()
-                        else:
-                            print("Time : {} , Message count of {} is below high-water mark of {}. Continuing".format(
-                                timestamp, msg_count, self.high_water))
 
             self.checkpoint.startTime = tmp_endTime
 
