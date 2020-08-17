@@ -165,14 +165,14 @@ class EsnetDataUploader():
                         self.channel = get_rabbitmq_connection().createChannel()
                         msg_count = self.getMsgInQueue()
                         timestamp = datetime.utcnow()
-    	                if msg_count >= self.high_water:
+                        if msg_count >= self.high_water:
                             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
                                 timestamp, msg_count, self.high_water))
                             self.connection.sleep(self.sleep)
-                            msg_count = self.getMsgInQueue()            
+                            msg_count = self.getMsgInQueue()
                         else
-			    print("Time : {} , Message count of {} is below high-water mark of {}. Continuing".format(
-                                 timestamp, msg_count, self.high_water))
+                        print("Time : {} , Message count of {} is below high-water mark of {}. Continuing".format(
+                            timestamp, msg_count, self.high_water))
 
             self.checkpoint.startTime = tmp_endTime
 
