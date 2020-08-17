@@ -160,7 +160,7 @@ class EsnetDataUploader():
                     except IndexError:
                         print('No Record found')
                     except TypeError:
-		        print ('Type Error')
+                        print('Type Error')
                     except Exception as e:
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
