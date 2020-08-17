@@ -19,7 +19,7 @@ class EsnetDataUploader():
 
     checkpoint = os.path.join(os.getcwd(), "checktime")
 
-    def __init__(self, sleep=15, low_water=30000, high_water=50000):
+    def __init__(self, sleep=10, low_water=30000, high_water=50000):
 
         self.url = get_rabbitmq_connection().rabbithost
         self.exchange = get_rabbitmq_connection().exchange
@@ -31,7 +31,6 @@ class EsnetDataUploader():
         self.sleep = sleep
         self.low_water = low_water
         self.high_water = high_water
-        self.batch_size = 30000
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
