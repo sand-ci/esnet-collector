@@ -138,11 +138,11 @@ class EsnetDataUploader():
 
                     params = urllib.parse.urlencode(
                         {'begin': self.checkpoint.startTime, 'end': tmp_endTime})
-                    self.batchSleep()
                     try:
                         with urllib.request.urlopen(finalUrl.format(params)) as url:
                             data = json.load(url)
                             points = data['points']
+                            self.batchSleep()
 
                             for point in points:
                                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name": device, "recordType": recordType,
