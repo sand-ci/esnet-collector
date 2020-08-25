@@ -6,6 +6,7 @@ from timeCheck import TimeCheck
 import urllib.request
 import urllib.parse
 import urllib3.util
+import threading
 import requests
 import time
 import json
@@ -94,6 +95,7 @@ class EsnetDataUploader():
         while msg_count > self.high_water:
             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
                 timestamp, msg_count, self.high_water))
+            self.connection.process_data_events()
             self.connection.sleep(self.sleep)
             msg_count = self.getMsgInQueue()
 
