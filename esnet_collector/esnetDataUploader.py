@@ -32,6 +32,7 @@ class EsnetDataUploader():
         self.sleep = sleep
         self.low_water = low_water
         self.high_water = high_water
+        self.batchSize = 5760
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
@@ -95,7 +96,6 @@ class EsnetDataUploader():
         while msg_count > self.high_water:
             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
                 timestamp, msg_count, self.high_water))
-            self.connection.process_data_events()
             self.connection.sleep(self.sleep)
             msg_count = self.getMsgInQueue()
 
@@ -144,13 +144,14 @@ class EsnetDataUploader():
                         with urllib.request.urlopen(finalUrl.format(params)) as url:
                             data = json.load(url)
                             points = data['points']
-                            self.batchSleep()
 
                             for point in points:
                                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name": device, "recordType": recordType,
                                                                                                                            "timestamp": point[0], "in": point[1], "out": point[2]}), properties=pika.BasicProperties(content_type='text/plain', delivery_mode=1))
 
                                 counter += 1
+                                if (counter % self.batchSize) == 0:
+                                    slef.batchSleep()
 
                     except (HTTPError):
                         print('No Record found')
@@ -162,6 +163,7 @@ class EsnetDataUploader():
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
                         self.channel = get_rabbitmq_connection().createChannel()
+                        self.connection.process_data_events()
 
             self.checkpoint.startTime = tmp_endTime
 
