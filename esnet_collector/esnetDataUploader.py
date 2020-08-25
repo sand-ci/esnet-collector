@@ -151,7 +151,7 @@ class EsnetDataUploader():
 
                                 counter += 1
                                 if (counter % self.batchSize) == 0:
-                                    slef.batchSleep()
+                                    self.batchSleep()
 
                     except (HTTPError):
                         print('No Record found')
