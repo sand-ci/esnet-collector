@@ -179,7 +179,7 @@ class EsnetDataUploader():
 
             while p.is_alive():
                 print('Heart Beating ...')
-                self.connection.process_data_events(0
+                self.connection.process_data_events()
                 self.connection.sleep(5)
 
 
