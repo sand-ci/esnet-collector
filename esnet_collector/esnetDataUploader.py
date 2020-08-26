@@ -163,7 +163,6 @@ class EsnetDataUploader():
                         print(
                             "Restarting pika connection,, exception was %s, " % (repr(e)))
                         self.channel = get_rabbitmq_connection().createChannel()
-                        self.connection.process_data_events()
 
             self.checkpoint.startTime = tmp_endTime
 
@@ -178,8 +177,13 @@ class EsnetDataUploader():
             p.start()
             p.join()
 
+            while p.is_alive():
+                print('Heart Beating ...')
+                self.connection.process_data_events(0
+                self.connection.sleep(5)
 
-stats = EsnetDataUploader()
+
+stats=EsnetDataUploader()
 stats.SendInterfacetoRMQ()
 stats.RunInParallel()
 
