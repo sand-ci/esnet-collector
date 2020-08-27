@@ -159,9 +159,6 @@ class EsnetDataUploader():
                         print('No Record found')
                     except IndexError:
                         print('No Record found')
-                    except Exception as e:
-                        print(
-                            "Restarting pika connection,, exception was %s, " % (repr(e)))
 
             self.checkpoint.startTime = tmp_endTime
 
