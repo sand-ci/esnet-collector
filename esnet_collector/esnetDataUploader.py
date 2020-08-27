@@ -97,6 +97,7 @@ class EsnetDataUploader():
             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
                 timestamp, msg_count, self.high_water))
             self.connection.sleep(self.sleep)
+            self.channel = get_rabbitmq_connection().createChannel()
             msg_count = self.getMsgInQueue()
 
         if msg_count < self.low_water:
