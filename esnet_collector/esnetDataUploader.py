@@ -166,22 +166,18 @@ class EsnetDataUploader():
         else:
             print("Start time not less than end time .... exiitng loop")
 
-    def RunInParallel(self):
-        stats = EsnetDataUploader()
-        statType = ['traffic', 'discards', 'errors']
-        for i in statType:
-            p = Process(target=stats.SendStatsToRMQ, args=[i])
-            p.start()
-            p.join()
+   # def RunInParallel(self):
+   #     stats = EsnetDataUploader()
+   #     statType = ['traffic', 'discards', 'errors']
+   #     for i in statType:
+   #         p = Process(target=stats.SendStatsToRMQ, args=[i])
+   #         p.start()
+   #         p.join()
 
-            while p.is_alive():
-                print('Heart Beating ...')
-                self.connection.process_data_events()
-                self.connection.sleep(5)
 
 
 stats=EsnetDataUploader()
 stats.SendInterfacetoRMQ()
-stats.RunInParallel()
+stats.SendStatsToRMQ('traffic')
 
 get_rabbitmq_connection().closeConnection()
