@@ -28,7 +28,7 @@ class RabbitMQConnect:
     def createConnection(self):
         #Connect to the bus
         credentials = pika.PlainCredentials(self.username, self.passwd)
-        self.params = pika.ConnectionParameters(host=self.rabbithost, virtual_host=self.vhost, credentials=credentials, heartbeat_interval=0)
+        self.params = pika.ConnectionParameters(host=self.rabbithost, virtual_host=self.vhost, credentials=credentials, heartbeat=0)
         self.connection = pika.BlockingConnection(self.params) # Connect to CloudAMQP
     
     def createChannel(self):
