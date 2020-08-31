@@ -36,7 +36,7 @@ class EsnetDataUploader():
 
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
-            host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat=10)
+            host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat_interval=0)
         self.connection = pika.BlockingConnection(
             self.params)  # Connect to CloudAMQP
         self.channel = get_rabbitmq_connection().createChannel()
@@ -94,10 +94,9 @@ class EsnetDataUploader():
 
         # We're above the HWM. Stop sending for an additional 2x sleep and then check again
         while msg_count > self.high_water:
-            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck.".format(
+            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to rec/heck.".format(
                 timestamp, msg_count, self.high_water))
             self.connection.sleep(self.sleep)
-            self.channel = get_rabbitmq_connection().createChannel()
             msg_count = self.getMsgInQueue()
 
         if msg_count < self.low_water:
