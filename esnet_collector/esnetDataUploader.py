@@ -94,7 +94,7 @@ class EsnetDataUploader():
 
         # We're above the HWM. Stop sending for an additional 2x sleep and then check again
         while msg_count > self.high_water:
-            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to rec/heck.".format(
+            print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck msg count...".format(
                 timestamp, msg_count, self.high_water))
             self.connection.sleep(self.sleep)
             msg_count = self.getMsgInQueue()
