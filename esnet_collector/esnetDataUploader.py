@@ -1,5 +1,6 @@
 from rabbitmqconnect import RabbitMQConnect, get_rabbitmq_connection
 from datetime import date, datetime, timedelta
+from socket import error as SocketError
 from multiprocessing import Process
 from urllib.error import HTTPError
 from timeCheck import TimeCheck
@@ -8,6 +9,7 @@ import urllib.parse
 import urllib3.util
 import threading
 import requests
+import errno
 import time
 import json
 import pika
@@ -97,6 +99,7 @@ class EsnetDataUploader():
             print("Time : {} , Message count of {} is above high-water mark of {}. Waiting to recheck msg count...".format(
                 timestamp, msg_count, self.high_water))
             self.connection.sleep(self.sleep)
+            timestamp = datetime.utcnow()
             msg_count = self.getMsgInQueue()
 
         if msg_count < self.low_water:
@@ -159,6 +162,10 @@ class EsnetDataUploader():
                         print('No Record found')
                     except IndexError:
                         print('No Record found')
+                    except SocketError as e:
+                        if e.errno != errno.ECONNRESET:
+                            raise
+                        pass
 
             self.checkpoint.startTime = tmp_endTime
 
@@ -174,8 +181,7 @@ class EsnetDataUploader():
    #         p.join()
 
 
-
-stats=EsnetDataUploader()
+stats = EsnetDataUploader()
 stats.SendInterfacetoRMQ()
 stats.SendStatsToRMQ('traffic')
 
