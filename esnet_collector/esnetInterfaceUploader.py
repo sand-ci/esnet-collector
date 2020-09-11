@@ -11,7 +11,6 @@ import csv
 import sys
 import os
 
-
 class EsnetInterfaceUploader():
 
     def __init__(self):
@@ -30,7 +29,6 @@ class EsnetInterfaceUploader():
         self.connection = pika.BlockingConnection(
             self.params)  # Connect to CloudAMQP
         self.channel = get_rabbitmq_connection().createChannel()
-
 
 
     def SendInterfacetoRMQ(self):

@@ -17,7 +17,6 @@ import csv
 import sys
 import os
 
-
 class EsnetStatsUploader():
 
     checkpoint = os.path.join(os.getcwd(), "checktime")
@@ -164,6 +163,5 @@ class EsnetStatsUploader():
             p = Process(target=stats.SendStatsToRMQ, args=[i])
             p.start()
             p.join()
-
 
 get_rabbitmq_connection().closeConnection()
