@@ -166,4 +166,7 @@ class EsnetStatsUploader():
             p.join()
 
 
+stats = EsnetStatsUploader()
+stats.RunInParallel()
+
 get_rabbitmq_connection().closeConnection()
