@@ -36,6 +36,7 @@ class EsnetInterfaceUploader():
         with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
             data = json.load(url)
             counter = 0
+            timestamp = datetime.utcnow()
 
             for datum in data:
                 seconds = datetime.utcnow().timestamp()
@@ -44,7 +45,8 @@ class EsnetInterfaceUploader():
                 self.channel.basic_publish(exchange=self.exchange, routing_key=self.key1, body=json.dumps(datum), properties=pika.BasicProperties(content_type='text/plain',
                                                                                                                                                   delivery_mode=1))
                 counter += 1
-                print("[x] Interface data sent to OSG RabbitMQ bus")
+                
+        print("{} total Interfaces sent to OSG RabbitMQ bus at Time : {}".format(counter, timestamp))
 
 
 stats = EsnetInterfaceUploader()

@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "esnet_collector/esnetDataUploader.py"]
+CMD ["python", "esnet_collector/esnetStatsUploader.py"]
