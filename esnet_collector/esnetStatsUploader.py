@@ -159,7 +159,7 @@ class EsnetStatsUploader():
 
     def RunInParallel(self):
         stats = EsnetStatsUploader()
-        statType = ['errors', 'discards']
+        statType = ['traffic', 'errors', 'discards']
         for i in statType:
             p = Process(target=stats.SendStatsToRMQ, args=[i])
             p.start()
