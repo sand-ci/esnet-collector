@@ -4,6 +4,7 @@ from socket import error as SocketError
 from multiprocessing import Process
 from urllib.error import HTTPError
 from timeCheck import TimeCheck
+import mysql.connector
 import urllib.request
 import urllib.parse
 import urllib3.util
@@ -16,6 +17,7 @@ import pika
 import csv
 import sys
 import os
+import re
 
 
 class EsnetStatsUploader():
@@ -57,12 +59,13 @@ class EsnetStatsUploader():
 
         self.checkpoint = TimeCheck(checkpoint_file)
 
-        now = datetime.utcnow()
+        now = datetime.now()
+        print(now)
         twoMinutesAgo = now - \
-            timedelta(minutes=2, seconds=now.second,
+            timedelta(minutes=30, seconds=now.second,
                       microseconds=now.microsecond)
         nowInMinutes = now - \
-            timedelta(seconds=now.second, microseconds=now.microsecond)
+            timedelta(minutes=15, seconds=now.second, microseconds=now.microsecond)
 
         if self.checkpoint.startTime is None and self.checkpoint.endTime is None:
             self.checkpoint.startTime = round(twoMinutesAgo.timestamp()*1000)
@@ -108,6 +111,7 @@ class EsnetStatsUploader():
             return
 
     def SendStatsToRMQ(self, stats):
+        
 
         f = open('timeCollector.txt', 'a')
         while (int(self.checkpoint.startTime) < int(self.checkpoint.endTime)):
@@ -115,41 +119,49 @@ class EsnetStatsUploader():
             print(self.checkpoint.startTime, tmp_endTime,
                   self.checkpoint.endTime, file=f)
 
-            with urllib.request.urlopen("https://esnet-netbeam.appspot.com/api/network/esnet/prod/interfaces") as url:
-                data = json.load(url)
-                counter = 0
+            db_connect = mysql.connector.connect(host="localhost", user="root", password="", database="esnet" )
+            print(db_connect)
+            my_cursor = db_connect.cursor()  
 
-                for datum in data:
-                    url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
-                    device = datum['resource']
-                    recordType = stats
-                    finalUrl = url1+device+'/'+recordType+'?{}'
-                    print(finalUrl)
+            sql_select_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0 or active_until != traffic_until or active_until != errors_until or active_until != discards_until;"
+        
+            sql_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0"
 
-                    params = urllib.parse.urlencode(
-                        {'begin': self.checkpoint.startTime, 'end': tmp_endTime})
-                    try:
-                        with urllib.request.urlopen(finalUrl.format(params)) as url:
-                            data = json.load(url)
-                            points = data['points']
+            my_cursor.execute(sql_query)
 
-                            for point in points:
-                                self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name": device, "recordType": recordType,
+            data = my_cursor.fetchall()
+            
+            for datum in data:
+                url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
+                device = datum[0]
+                recordType = stats
+                finalUrl = url1+device+'/'+recordType+'?{}'
+                print(finalUrl, self.checkpoint.startTime, self.checkpoint.endTime )
+
+                params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': tmp_endTime})
+                try:
+                    with urllib.request.urlopen(finalUrl.format(params)) as url:
+                        data = json.load(url)
+                        print(data)
+                        points = data['points']
+
+                        for point in points:
+                            self.channel.basic_publish(exchange=self.exchange, routing_key=self.key2, body=json.dumps({"name": device, "recordType": recordType,
                                                                                                                            "timestamp": point[0], "in": point[1], "out": point[2]}), properties=pika.BasicProperties(content_type='text/plain', delivery_mode=1))
 
-                                counter += 1
-                                if (counter % self.batchSize) == 0:
-                                    self.batchSleep()
+                            counter += 1
+                            if (counter % self.batchSize) == 0:
+                                self.batchSleep()
 
-                    except (HTTPError):
+                except (HTTPError):
                         print('No Record found')
-                    except json.decoder.JSONDecodeError:
+                except json.decoder.JSONDecodeError:
                         print('No Record found')
-                    except IndexError:
+                except IndexError:
                         print('No Record found')
-                    except SocketError as e:
-                        if e.errno != errno.ECONNRESET:
-                            raise
+                except SocketError as e:
+                    if e.errno != errno.ECONNRESET:
+                        raise
                         pass
 
             self.checkpoint.startTime = tmp_endTime
