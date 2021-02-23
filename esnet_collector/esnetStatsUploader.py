@@ -3,7 +3,6 @@ from datetime import date, datetime, timedelta
 from socket import error as SocketError
 from multiprocessing import Process
 from urllib.error import HTTPError
-from timeCheck import TimeCheck
 import mysql.connector
 import urllib.request
 import urllib.parse
@@ -22,8 +21,6 @@ import re
 
 class EsnetStatsUploader():
 
-    checkpoint = os.path.join(os.getcwd(), "checktime")
-
     def __init__(self, sleep=30, low_water=30000, high_water=50000):
 
         self.url = get_rabbitmq_connection().rabbithost
@@ -41,37 +38,15 @@ class EsnetStatsUploader():
         credentials = pika.PlainCredentials(self.username, self.passwd)
         self.params = pika.ConnectionParameters(
             host=self.url, virtual_host=self.vhost, credentials=credentials, heartbeat=0)
-        self.connection = pika.BlockingConnection(
-            self.params)  # Connect to CloudAMQP
+        self.connection = pika.BlockingConnection(self.params)  # Connect to CloudAMQP
         self.channel = get_rabbitmq_connection().createChannel()
 
         # Make RabbitMQ REST API URL from AMQP URL
         u_parse = urllib3.util.parse_url(self.url)
-        self.api_url = urllib3.util.url.Url('https', '{}:{}'.format(
-            self.username, self.passwd), u_parse.hostname, None, '/api/queues/' + self.vhost).url
+        self.api_url = urllib3.util.url.Url('http', '{}:{}'.format(self.username, self.passwd), u_parse.hostname, None, '/api/queues/' + self.vhost).url
+
         # Use a session for connection pooling
         self.session = requests.Session()
-
-        if self.checkpoint:
-            checkpoint_file = os.path.join(os.getcwd(), "checktime")
-        else:
-            checkpoint_file = None
-
-        self.checkpoint = TimeCheck(checkpoint_file)
-
-        now = datetime.now()
-        print(now)
-        twoMinutesAgo = now - \
-            timedelta(minutes=30, seconds=now.second,
-                      microseconds=now.microsecond)
-        nowInMinutes = now - \
-            timedelta(minutes=15, seconds=now.second, microseconds=now.microsecond)
-
-        if self.checkpoint.startTime is None and self.checkpoint.endTime is None:
-            self.checkpoint.startTime = round(twoMinutesAgo.timestamp()*1000)
-            self.checkpoint.endTime = round(nowInMinutes.timestamp()*1000)
-
-        print(self.checkpoint.startTime, self.checkpoint.endTime)
 
     def getMsgInQueue(self):
         '''Query RabbitMQ API and return total number of messages in queue. Retries as needed.'''
@@ -112,37 +87,45 @@ class EsnetStatsUploader():
 
     def SendStatsToRMQ(self, stats):
         
+        db_connect = mysql.connector.connect(host="localhost", user="root", password="", database="esnet" )
+        my_cursor = db_connect.cursor(buffered=True)
+        my_cursor1 = db_connect.cursor(buffered=True)
+        sql_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0"
+        my_cursor.execute(sql_query)
+        datum = my_cursor.fetchone()
+        self.startTime = datum[2]
+
+        now = datetime.now()
+        print(now)
+        twoMinutesAgo = now - \
+            timedelta(minutes=30, seconds=now.second,
+                      microseconds=now.microsecond)
+        nowInMinutes = now - \
+            timedelta(minutes=15, seconds=now.second, microseconds=now.microsecond)
+
+        if self.startTime is None and self.endTime is None:
+            self.startTime = round(twoMinutesAgo.timestamp()*1000)
+            self.endTime = round(nowInMinutes.timestamp()*1000)
 
         f = open('timeCollector.txt', 'a')
-        while (int(self.checkpoint.startTime) < int(self.checkpoint.endTime)):
-            tmp_endTime = int(self.checkpoint.startTime) + 48*3600*1000
-            print(self.checkpoint.startTime, tmp_endTime,
-                  self.checkpoint.endTime, file=f)
-
-            db_connect = mysql.connector.connect(host="localhost", user="root", password="", database="esnet" )
-            print(db_connect)
-            my_cursor = db_connect.cursor()  
-
-            sql_select_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0 or active_until != traffic_until or active_until != errors_until or active_until != discards_until;"
-        
-            sql_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0"
-
-            my_cursor.execute(sql_query)
-
-            data = my_cursor.fetchall()
+        while (int(self.startTime) < int(self.endTime)):
             
-            for datum in data:
+            while datum is not None:
                 url1 = "https://esnet-netbeam.appspot.com/api/network/esnet/prod/"
-                device = datum[0]
+                device = datum[1]
                 recordType = stats
                 finalUrl = url1+device+'/'+recordType+'?{}'
-                print(finalUrl, self.checkpoint.startTime, self.checkpoint.endTime )
+                print(finalUrl, self.startTime, self.endTime )
+                counter = 0
 
-                params = urllib.parse.urlencode({'begin': self.checkpoint.startTime, 'end': tmp_endTime})
+                params = urllib.parse.urlencode({'begin': self.startTime, 'end': self.endTime})
+                update_query = "UPDATE int_test1 SET errors_until = %s WHERE name = %s AND id= %s"
+                my_cursor1.execute(update_query, (self.checkpoint.endTime, datum[1], datum[0]))
+                db_connect.commit()
+
                 try:
                     with urllib.request.urlopen(finalUrl.format(params)) as url:
                         data = json.load(url)
-                        print(data)
                         points = data['points']
 
                         for point in points:
@@ -164,7 +147,7 @@ class EsnetStatsUploader():
                         raise
                         pass
 
-            self.checkpoint.startTime = tmp_endTime
+                datum = my_cursor.fetchone()
 
         else:
             print("Start time not less than end time .... exiitng loop")
