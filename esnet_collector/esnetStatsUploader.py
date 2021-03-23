@@ -85,15 +85,15 @@ class EsnetStatsUploader():
                 timestamp, msg_count, self.low_water))
             return
 
-    def SendStatsToRMQ(self, stats):
+    def SendStatsToRMQ(self, stats, stats_until):
         
-        db_connect = mysql.connector.connect(host="localhost", user="root", password="", database="esnet" )
+        db_connect = mysql.connector.connect(host="esnet_db", user="root", password="NU6*6gYs", database="esnet" )
         my_cursor = db_connect.cursor(buffered=True)
         my_cursor1 = db_connect.cursor(buffered=True)
-        sql_query = "select name, active_until, traffic_until, discards_until, traffic_until from int_test where status != 0"
+        sql_query = "select id, name, active_until, `%s`, status from int_test1 where status != 0 or `%s`!= active_until and status = 0"%(stats_until, stats_until)
         my_cursor.execute(sql_query)
         datum = my_cursor.fetchone()
-        self.startTime = datum[2]
+        status = datum[4]
 
         now = datetime.now()
         print(now)
@@ -103,9 +103,14 @@ class EsnetStatsUploader():
         nowInMinutes = now - \
             timedelta(minutes=15, seconds=now.second, microseconds=now.microsecond)
 
-        if self.startTime is None and self.endTime is None:
+        if status != 0:
             self.startTime = round(twoMinutesAgo.timestamp()*1000)
             self.endTime = round(nowInMinutes.timestamp()*1000)
+        else:
+            self.startTime = datum[3]
+            self.endTime = datum[2]
+
+        print(self.startTime, self.endTime)
 
         f = open('timeCollector.txt', 'a')
         while (int(self.startTime) < int(self.endTime)):
@@ -119,8 +124,8 @@ class EsnetStatsUploader():
                 counter = 0
 
                 params = urllib.parse.urlencode({'begin': self.startTime, 'end': self.endTime})
-                update_query = "UPDATE int_test1 SET errors_until = %s WHERE name = %s AND id= %s"
-                my_cursor1.execute(update_query, (self.checkpoint.endTime, datum[1], datum[0]))
+                update_query = "UPDATE int_test1 SET `%s` = %s WHERE name = '%s' AND id= %s"%(stats_until, self.endTime, datum[1], datum[0])
+                my_cursor1.execute(update_query)
                 db_connect.commit()
 
                 try:
@@ -152,16 +157,7 @@ class EsnetStatsUploader():
         else:
             print("Start time not less than end time .... exiitng loop")
 
-    def RunInParallel(self):
-        stats = EsnetStatsUploader()
-        statType = ['traffic', 'errors', 'discards']
-        for i in statType:
-            p = Process(target=stats.SendStatsToRMQ, args=[i])
-            p.start()
-            p.join()
-
-
 stats = EsnetStatsUploader()
-stats.RunInParallel()
+stats.SendStatsToRMQ('errors', 'errors_until')
 
 get_rabbitmq_connection().closeConnection()
