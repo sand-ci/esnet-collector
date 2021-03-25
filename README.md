@@ -29,28 +29,29 @@ To keep track of the everyday changes in the esnet [Interfaces API](https://esne
 
 In order to start a mysql instance, we brought up a docker `mysql5.7` instance using a `docker-compose.yml` file in our production server. The specifications of the docker-compose file are provided below :
 
-[docker-compose.yml]
-version: '3'
+    [docker-compose.yml]
+    
+    version: '3'
 
-services:
-  db:
-    image: mysql:5.7
-    container_name: esnet_db
-    environment:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_DATABASE: esnet
-      MYSQL_USER: esnet_user
-      MYSQL_PASSWORD:
-    ports:
-      - "3306"
+    services:
+      db:
+        image: mysql:5.7
+        container_name: esnet_db
+        environment:
+          MYSQL_ROOT_PASSWORD: 
+          MYSQL_DATABASE: esnet
+          MYSQL_USER: esnet_user
+          MYSQL_PASSWORD:
+        ports:
+          - "3306"
+        volumes:
+          - dbdata:/var/lib/mysql
+    networks:
+      default:
+        external:
+          name: esnet-network
     volumes:
-      - dbdata:/var/lib/mysql
-networks:
-  default:
-    external:
-      name: esnet-network
-volumes:
-  dbdata:
+      dbdata:
 
 Place the docker-compose file in a suitable accessible location in the production server. The database image we are using is mysql5.7 and the docker container name in this instance is `esnet_db`. The environment parameter values can be set to your choice. In our case we set the MYSQL_DATABASE value to be esnet which is the name of the database we will be using for the project. We also created a user named `esnet_user`. The password for the user and root can be any password of your choice. The mysql instance is running in port 3306 and the data will be stored in /var/lib/mysql directory. Since we are mounting it as a volume, the data will persist even if the mysql container is stopped/deleted and restarted. The Networking part of the container is explained in the Networking section of this documentation.
 
@@ -80,7 +81,7 @@ The database we use is named esnet. The table we use to store the interface data
 
 Now our interfaces table is ready to store data permanently.
 
-# Container Networking
+## Container Networking
 
 Since we are going to be running multiple docker containers, we need all the containers to be on the same network. If the containers are not in the smae network the python esnet collector script would not be able to see the mysql esnet database and perform select, insert, update operations on the interfaces table.
 
@@ -91,7 +92,7 @@ Then, we created a network named `esnet-network` using the command "docker netwo
 
 To view the details about the network including which containers are using the particular network we use `docker network inspect <network_name>` command
 
-# Collector
+## Collector
 
 Before running the esnet collector python script we first package our script into a Dockerfile so that we can run it as a docker container. The Dockerfile has a python3 version and runs a requirements file which contains all packages needed for the collector script to run including pika, python-dotenv, requests and mysql-connector. The docker compose file for the esnet_collector contains environment variables with RabbitMQ parameters described in the RabbitMQ Configuration section.
 
