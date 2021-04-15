@@ -157,7 +157,8 @@ class EsnetStatsUploader():
         else:
             print("Start time not less than end time .... exiitng loop")
 
-stats = EsnetStatsUploader()
-stats.SendStatsToRMQ('errors', 'errors_until')
+while True:
+    stats = EsnetStatsUploader()
+    stats.SendStatsToRMQ('errors', 'errors_until')
 
 get_rabbitmq_connection().closeConnection()

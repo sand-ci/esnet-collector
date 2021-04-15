@@ -106,4 +106,6 @@ Once the docker container image for the collector is built we can run the script
 
 `docker run -it --rm --network esnet-network esnet-collector`
 
-where esnet-netowrk is the user-defined network that is used to connect the mysql container. We want the python script to run in the same network as the database else the esnet interface table operations will fail and the python script will fail due to that.
+where esnet-network is the user-defined network that is used to connect the mysql container. We want the python script to run in the same network as the database else the esnet interface table operations will fail and the python script will fail due to that.
+
+The collectors run on an indefinite loop and collects data continously.
